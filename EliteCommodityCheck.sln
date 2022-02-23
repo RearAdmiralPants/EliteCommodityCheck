@@ -1,14 +1,42 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "EDDB", "EDDB", "{2BDC750D-CD2A-4A94-A95D-7DB04DD1D850}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataReetrieval", "DataReetrieval", "{6DF06419-0CE2-467C-875A-960644725900}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "APIDataRetriever", "src\EliteEDDBRetriever\src\APIDataRetriever\APIDataRetriever.csproj", "{EA758FC0-405B-441D-965E-41DD7A7C8719}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{377A6E52-6D06-4082-BA1D-B931A7EA1BAE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleLogger", "src\EliteEDDBRetriever\src\SimpleLogger\SimpleLogger.csproj", "{37929F93-AAF1-4764-8E9D-83E1C97DDC4D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA758FC0-405B-441D-965E-41DD7A7C8719}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA758FC0-405B-441D-965E-41DD7A7C8719}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA758FC0-405B-441D-965E-41DD7A7C8719}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA758FC0-405B-441D-965E-41DD7A7C8719}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37929F93-AAF1-4764-8E9D-83E1C97DDC4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37929F93-AAF1-4764-8E9D-83E1C97DDC4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37929F93-AAF1-4764-8E9D-83E1C97DDC4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37929F93-AAF1-4764-8E9D-83E1C97DDC4D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6DF06419-0CE2-467C-875A-960644725900} = {2BDC750D-CD2A-4A94-A95D-7DB04DD1D850}
+		{EA758FC0-405B-441D-965E-41DD7A7C8719} = {6DF06419-0CE2-467C-875A-960644725900}
+		{37929F93-AAF1-4764-8E9D-83E1C97DDC4D} = {377A6E52-6D06-4082-BA1D-B931A7EA1BAE}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F1DFA9A-BA86-44EC-A911-D0E8F1A97C9C}
 	EndGlobalSection
 EndGlobal

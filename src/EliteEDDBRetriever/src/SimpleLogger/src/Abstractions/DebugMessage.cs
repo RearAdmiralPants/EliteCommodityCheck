@@ -11,7 +11,7 @@ namespace SimpleLogger.Abstractions
             this.Contents = contents;
         }
 
-        public DebugMessagePrefixType PrefixType { get; set; } = DebugMessagePrefixType.String;
+        public DebugMessagePrefixType PrefixType { get; set; } = DebugMessagePrefixType.Timestamp;          ////TODO: Fix bug; rework logging system
 
         public string Prefix { get; set; }
 
@@ -51,7 +51,7 @@ namespace SimpleLogger.Abstractions
         }
 
         public void Reset(string newContents) {
-            this.Prefix = null;
+            //this.Prefix = null;
             this.Contents = newContents;
             this.Processed = false;
             this._created = DateTime.UtcNow;

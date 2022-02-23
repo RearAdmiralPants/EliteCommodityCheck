@@ -204,6 +204,24 @@ namespace EliteCommodityAnalysis.Abstractions.EDDB
                     await this.DebugService.LogStringAsync("For " + destDownload + ", sizes differ on local (" + localSize.ToString() + ") vs. API size (" + apiSize.ToString(), LogOutputHelpers.ConsoleOnly());
                     if (!retrieve) { retrieve = true; }
                 }
+                else
+                {
+                    var localLastModification = info.LastWriteTimeUtc;
+                    var apiLastModification = lastModified.UtcDateTime;
+                    if (apiLastModification.Subtract(localLastModification).TotalMinutes >= AppConstants.MINUTES_PAST_REQUIRING_NEW_DOWNLOAD)
+                    {
+                        await this.DebugService.LogStringAsync("Local file's last write time (" + info.LastWriteTime.ToString() + ") in UTC (" + localLastModification.ToString() + ") differs from API's reported last modification (" + lastModified.ToString() + ") by " + apiLastModification.Subtract(localLastModification).TotalMinutes.ToString() + " minutes. File will be retrieved.", LogOutputHelpers.ConsoleOnly());
+                        retrieve = true;
+                    }
+                    else
+                    {
+                        await this.DebugService.LogStringAsync("Local file's last write time (" + info.LastWriteTime.ToString() + ") in UTC (" + localLastModification.ToString() + ") differs from API's reported last modification (" + lastModified.ToString() + ") by " + apiLastModification.Subtract(localLastModification).TotalMinutes.ToString() + " minutes. File **NEED NOT** be retrieved.", LogOutputHelpers.ConsoleOnly());
+                        if (!retrieve)
+                        {
+                            await this.DebugService.LogStringAsync("**NO DOWNLOAD REQUIRED**", LogOutputHelpers.ConsoleOnly());
+                        }
+                    }
+                }
             }
             else {
                 await this.DebugService.LogStringAsync("API file does not exist locally; downloading.");
@@ -212,19 +230,24 @@ namespace EliteCommodityAnalysis.Abstractions.EDDB
             }
 
 //           var minsSinceModified = InitializedDateTime.NowMinusPastDateTime(lastModified).TotalMinutes;
-            if (minsSinceRemoteChanged.TotalMinutes >= AppConstants.MINUTES_PAST_REQUIRING_NEW_DOWNLOAD || retrieve) {
+            //if (minsSinceRemoteChanged.TotalMinutes >= AppConstants.MINUTES_PAST_REQUIRING_NEW_DOWNLOAD || retrieve) {
             
-                await this.DebugService.LogStringAsync("For " + destDownload + " timespan since last modified time is " + minsSinceRemoteChanged.ToString() + " or " + minsSinceRemoteChanged.TotalMinutes.ToString() + " minutes greater than the local version.", LogOutputHelpers.ConsoleOnly());
-                await this.DebugService.LogStringAsync("New download required for " + target.ToString() + " to " +  destDownload, LogOutputHelpers.ConsoleOnly());
-                retrieve = true;
-            }
-            else {
-                await this.DebugService.LogStringAsync("No download required.", LogOutputHelpers.ConsoleOnly());
-            }
+            //    await this.DebugService.LogStringAsync("For " + destDownload + " timespan since last modified time is " + minsSinceRemoteChanged.ToString() + " or " + minsSinceRemoteChanged.TotalMinutes.ToString() + " minutes greater than the local version.", LogOutputHelpers.ConsoleOnly());
+            //    await this.DebugService.LogStringAsync("New download required for " + target.ToString() + " to " +  destDownload, LogOutputHelpers.ConsoleOnly());
+            //    retrieve = true;
+            //}
+            //else {
+            //    await this.DebugService.LogStringAsync("No download required.", LogOutputHelpers.ConsoleOnly());
+            //}
             if (retrieve) { dlResult = await this.AttemptDownloadOfFile(target, destDownload); }
             if (dlResult) {
                 // Modify file modify time to match web modify time
-                File.SetLastWriteTimeUtc(destDownload, await this.headerReceiver.GetLastModified(target));
+                File.SetLastWriteTime(destDownload, lastModified.LocalDateTime);
+
+                var debugInfo = new FileInfo(destDownload);
+                await this.DebugService.LogStringAsync("Local modified time is now: " + debugInfo.LastWriteTime.ToString() + " (UTC: " + debugInfo.LastWriteTimeUtc.ToString() + ") after setting the last write time to the LOCAL DateTime (" + lastModified.LocalDateTime.ToString() + ")", LogOutputHelpers.ConsoleOnly());
+                var debugApiModTime = await this.headerReceiver.GetLastModifiedHeaderTimeAsync(target);
+                await this.DebugService.LogStringAsync("Remote modified time is: " + debugApiModTime.ToString(), LogOutputHelpers.ConsoleOnly());
             }
             return dlResult;
         }

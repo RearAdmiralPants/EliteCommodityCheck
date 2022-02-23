@@ -59,6 +59,7 @@ namespace EliteCommodityAnalysis.Abstractions.Helpers {
            msg.Reset();
            
            msg.Contents = contents;
+           msg.PrefixType = DebugMessagePrefixType.Timestamp;
 
            var output = new ConsoleOutput(msg);
            await output.WriteOutputAsync();

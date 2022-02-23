@@ -54,7 +54,9 @@ namespace EliteCommodityAnalysis.Managers {
 
         private bool updatingLocalFiles = false;
 
-        private int MainLoopIntervalSeconds = 3;      ////TODO: Reset to appropriate interval prior to release
+        private int MainLoopIntervalSeconds = 600;      ////TODO: Reset to appropriate interval prior to release
+
+        private uint mainLoopExecutions = 0;
 
         //// TODO: Figure out more nuanced DI if it is even required
         public LocalFileRetrievalManager(string rootDir, IDebugService debugService, IDebugMessage debugMessage, HttpHeaderReceiver rcvr, EddbFileDownloader fileDownloader)
@@ -83,8 +85,36 @@ namespace EliteCommodityAnalysis.Managers {
         }
 
         public async Task StartAsync(CancellationToken cancellationToken) {
+            var loopSpan = TimeSpan.FromSeconds(this.MainLoopIntervalSeconds);
+            var infoMsg = "EDDB API file retrieval beginning. Attempts will be made every ";
+            if (loopSpan.TotalMinutes < 1)
+            {
+                infoMsg += loopSpan.TotalSeconds.ToString() + " seconds.";
+            }
+            else if (loopSpan.TotalHours < 1)
+            {
+                infoMsg += loopSpan.TotalMinutes.ToString() + " minutes.";
+            }
+            else if (loopSpan.TotalDays < 1)
+            {
+                infoMsg += loopSpan.TotalHours.ToString() + " hours.";
+            }
+            else
+            {
+                infoMsg += loopSpan.TotalDays.ToString() + " days.";
+            }
+            infoMsg += " To cancel, press ESC, wait for a message to press a key, and do so to gracefully shut down.";
+            Console.WriteLine(infoMsg);
+
             await this.RepeatActionEvery(() => {
-                if (!this.updatingLocalFiles) { this.CheckForNewFiles(); }
+                uint thisLoops = 0;
+                if (!this.updatingLocalFiles) {
+                    this.CheckForNewFiles();
+                    //if (this.mainLoopExecutions > thisLoops)
+                    //{
+                        thisLoops = this.mainLoopExecutions;
+                    //}
+                }
             }, TimeSpan.FromSeconds(this.MainLoopIntervalSeconds));
 
             Console.WriteLine("Escaped from main loop.");
@@ -142,7 +172,11 @@ namespace EliteCommodityAnalysis.Managers {
             var helper = new LogFileHelpers(this.DebugService, this.DebugMessage);
             helper.LogStringToConsole("Checking for new files...");
 
-            var catchTask = Task.Run(async () => await this.UpdateLocalFiles());
+            var catchTask = Task.Run(async () =>
+            {
+                await this.UpdateLocalFiles();
+                this.mainLoopExecutions++;
+            });
             var exTask = catchTask.ContinueWith(catcher => {
                 this.FailureException = catcher.Exception;
                 // Could determine what kind of exception is happening here, but it's likely an IOException preventing creation of the required files that will receive the API's contents for the day
