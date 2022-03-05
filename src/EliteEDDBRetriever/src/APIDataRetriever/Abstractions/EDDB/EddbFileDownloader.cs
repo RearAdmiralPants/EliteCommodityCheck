@@ -116,6 +116,7 @@ namespace EliteCommodityAnalysis.Abstractions.EDDB
             return this.FileComplete;
         }
 
+        //// TODO: Check status of bug where file to be downloaded has size less than buffer size
         private async Task CompleteDownloadAndReportProgress(Uri target, BinaryReader httpStream) {
             var currPosition = 0;
             while (!this.FileComplete) {
