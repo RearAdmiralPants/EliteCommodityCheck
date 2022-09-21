@@ -55,6 +55,7 @@ namespace EliteCommodityAnalysis.Managers {
         private bool updatingLocalFiles = false;
 
         private int MainLoopIntervalSeconds = 600;      ////TODO: Reset to appropriate interval prior to release
+        private int DelayChunkSeconds = 5;
 
         private uint mainLoopExecutions = 0;
 
@@ -122,6 +123,10 @@ namespace EliteCommodityAnalysis.Managers {
 
         private async Task RepeatActionEvery(Action action, TimeSpan interval) {
             this.CancellationToken.ThrowIfCancellationRequested();
+            var delayChunk = new TimeSpan(0, 0, this.DelayChunkSeconds);
+            var chunkDelayTask = Task.Delay(delayChunk, this.CancellationToken);
+            var chunksInInterval = interval.Divide(delayChunk);
+            int delayChunksWaited = 0;
             while (!this.CancellationToken.IsCancellationRequested) {
 
                 if (this.HasEscBeenPressed())
@@ -136,9 +141,21 @@ namespace EliteCommodityAnalysis.Managers {
 
                     action();
 
-                    if (!this.CancellationToken.IsCancellationRequested) {
-                        var delay = Task.Delay(interval, this.CancellationToken);
-                        await delay;
+                    if (!this.CancellationToken.IsCancellationRequested || delayChunksWaited >= chunksInInterval) {
+                        //var delay = Task.Delay(interval, this.CancellationToken);
+                        //await delay;
+                        delayChunksWaited = 0;
+                        while (delayChunksWaited < chunksInInterval)
+                        {
+                            chunkDelayTask = Task.Delay(delayChunk, this.CancellationToken);
+                            await chunkDelayTask;
+                            delayChunksWaited++;
+                            Console.WriteLine("Waited " + delayChunksWaited.ToString() + " chunks / " + chunksInInterval.ToString() + "...");
+                            if (this.HasEscBeenPressed())
+                            {
+                                this.RequestCancellation();
+                            }
+                        }
                     }
                 }
                 catch (TaskCanceledException) {

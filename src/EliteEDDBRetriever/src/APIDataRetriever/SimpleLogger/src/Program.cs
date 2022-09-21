@@ -30,6 +30,8 @@
             services.AddSingleton<IDebugService, DebugService>();
             services.AddSingleton<DebugLoggerRunner>();
             _serviceProvider = services.BuildServiceProvider();
+
+            
         }
 
         private static void DisposeServices() {
